@@ -1,8 +1,8 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import "./styles.css";
 import logo from "../../assets/logo.svg";
 import { FiArrowLeft } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Map, TileLayer, Marker, Popup } from "react-leaflet";
 import api from "../../services/api";
 import { LeafletMouseEvent } from "leaflet";
@@ -45,6 +45,8 @@ const CreatePoints: React.FC = () => {
     0,
     0,
   ]);
+
+  const history = useHistory();
 
   useEffect(() => {
     async function loadItems() {
@@ -99,6 +101,28 @@ const CreatePoints: React.FC = () => {
     }
   }
 
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    const { name, email, whatsapp } = formData;
+    const uf = selectedUF;
+    const city = selectedCity;
+    const [latitude, longitude] = selectedPosition;
+    const items = selectedItems;
+    const data = {
+      name,
+      email,
+      whatsapp,
+      uf,
+      city,
+      latitude,
+      longitude,
+      items,
+    };
+    await api.post("points", data);
+    alert("Ponto de coleta cadastrado com sucesso");
+    history.push("/");
+  }
+
   useEffect(() => {
     async function loadCities() {
       const response = await axios.get<IBGECity[]>(
@@ -121,7 +145,7 @@ const CreatePoints: React.FC = () => {
             Voltar para home
           </Link>
         </header>
-        <form action="">
+        <form onSubmit={handleSubmit}>
           <h1>Cadastre seu ponto de coleta</h1>
           <fieldset>
             <legend>
